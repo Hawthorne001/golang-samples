@@ -15,22 +15,74 @@
 package functioncalling
 
 import (
-	"io"
+	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/GoogleCloudPlatform/golang-samples/internal/testutil"
 )
 
-func Test_functionCalls(t *testing.T) {
+func Test_functionCalling(t *testing.T) {
 	tc := testutil.SystemTest(t)
 
-	w := io.Discard
-	prompt := "What's the weather like in Paris?"
+	var buf bytes.Buffer
 	location := "us-central1"
-	modelName := "gemini-1.0-pro"
+	modelName := "gemini-1.5-flash-002"
 
-	err := functionCalls(w, prompt, tc.ProjectID, location, modelName)
+	err := functionCalling(&buf, tc.ProjectID, location, modelName)
 	if err != nil {
-		t.Errorf("Test_functionCalls: %v", err.Error())
+		t.Errorf("functionCalling failed: %v", err.Error())
+	}
+
+	funcOut := buf.String()
+
+	expOut := `The model suggests to call the function "getCurrentWeather" with args: map[location:Boston]`
+	if !strings.Contains(funcOut, expOut) {
+		t.Errorf("expected output to contain text %q, got: %q", expOut, funcOut)
+	}
+
+	expOut = "weather in Boston"
+	if !strings.Contains(funcOut, expOut) {
+		t.Errorf("expected output to contain text %q, got: %q", expOut, funcOut)
+	}
+}
+
+func Test_functionCallsChat(t *testing.T) {
+	tc := testutil.SystemTest(t)
+
+	var buf bytes.Buffer
+	location := "us-central1"
+	modelName := "gemini-1.5-flash-001"
+
+	err := functionCallsChat(&buf, tc.ProjectID, location, modelName)
+	if err != nil {
+		t.Errorf("Test_functionCallsChat: %v", err.Error())
+	}
+}
+
+func Test_parallelFunctionCalling(t *testing.T) {
+	tc := testutil.SystemTest(t)
+
+	var buf bytes.Buffer
+	location := "us-central1"
+	modelName := "gemini-1.5-flash-002"
+
+	err := parallelFunctionCalling(&buf, tc.ProjectID, location, modelName)
+	if err != nil {
+		t.Errorf("parallelFunctionCalling failed: %v", err.Error())
+	}
+
+	funcOut := buf.String()
+	testCases := []string{
+		`The model suggests to call the function "getCurrentWeather" with args: map[location:New Delhi]`,
+		`The model suggests to call the function "getCurrentWeather" with args: map[location:San Francisco]`,
+		"weather in New Delhi",
+		"weather in San Francisco",
+	}
+
+	for _, expOut := range testCases {
+		if !strings.Contains(funcOut, expOut) {
+			t.Errorf("expected output to contain text %q, got: %q", expOut, funcOut)
+		}
 	}
 }

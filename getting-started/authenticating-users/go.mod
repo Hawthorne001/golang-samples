@@ -1,10 +1,10 @@
 module github.com/GoogleCloudPlatform/golang-samples/getting-started/authenticating-users
 
-go 1.19
+go 1.21.13
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.3
+	cloud.google.com/go/compute/metadata v0.5.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 )
 
-require cloud.google.com/go/compute v1.19.1 // indirect
+require golang.org/x/sys v0.28.0 // indirect

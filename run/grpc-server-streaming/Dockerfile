@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START cloudrun_grpc_dockerfile]
-# [START run_grpc_dockerfile]
 
-# Use the offical golang image to create a binary.
+# Use the official Go image to create a binary.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
 FROM golang:1.21-bookworm as builder
@@ -48,6 +46,3 @@ COPY --from=builder /bin/server /server
 
 # Run the web service on container startup.
 CMD ["/server"]
-
-# [END run_grpc_dockerfile]
-# [END cloudrun_grpc_dockerfile]

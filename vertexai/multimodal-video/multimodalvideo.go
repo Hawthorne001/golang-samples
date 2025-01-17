@@ -15,6 +15,7 @@
 // multimodalvideo shows an example of understanding multimodal input including video
 package multimodalvideo
 
+// [START generativeaionvertexai_gemini_video]
 // [START aiplatform_gemini_single_turn_video]
 import (
 	"context"
@@ -27,19 +28,15 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 )
 
-// generateMultimodalContent generates a response into w, based upon the prompt
-// and video provided.
-// video is a Google Cloud Storage path starting with "gs://"
-func generateMultimodalContent(w io.Writer, prompt, video, projectID, location, modelName string) error {
-	// prompt := "What is in this video?"
-	// video := "gs://cloud-samples-data/video/animals.mp4"
+// generateMultimodalContent generates a response into w, based upon the prompt and video.
+func generateMultimodalContent(w io.Writer, projectID, location, modelName string) error {
 	// location := "us-central1"
-	// modelName := "gemini-1.0-pro-vision"
+	// modelName := "gemini-1.5-flash-001"
 	ctx := context.Background()
 
 	client, err := genai.NewClient(ctx, projectID, location)
 	if err != nil {
-		return fmt.Errorf("unable to create client: %v", err)
+		return fmt.Errorf("unable to create client: %w", err)
 	}
 	defer client.Close()
 
@@ -47,14 +44,14 @@ func generateMultimodalContent(w io.Writer, prompt, video, projectID, location, 
 	model.SetTemperature(0.4)
 
 	// Given a video file URL, prepare video file as genai.Part
-	img := genai.FileData{
-		MIMEType: mime.TypeByExtension(filepath.Ext(video)),
-		FileURI:  video,
+	part := genai.FileData{
+		MIMEType: mime.TypeByExtension(filepath.Ext("animals.mp4")),
+		FileURI:  "gs://cloud-samples-data/video/animals.mp4",
 	}
 
-	res, err := model.GenerateContent(ctx, img, genai.Text(prompt))
+	res, err := model.GenerateContent(ctx, part, genai.Text("What is in this video?"))
 	if err != nil {
-		return fmt.Errorf("unable to generate contents: %v", err)
+		return fmt.Errorf("unable to generate contents: %w", err)
 	}
 
 	if len(res.Candidates) == 0 ||
@@ -67,3 +64,4 @@ func generateMultimodalContent(w io.Writer, prompt, video, projectID, location, 
 }
 
 // [END aiplatform_gemini_single_turn_video]
+// [END generativeaionvertexai_gemini_video]
